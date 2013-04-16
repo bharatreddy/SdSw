@@ -420,7 +420,7 @@ def sapsPredModPlots( CurrDstVal, last_good_dst_date, MyMap,Mapfig ) :
     
     srchStringMysql = "SELECT * FROM SAPSprobmodel WHERE (inptype = "+"'"+str(strDstSapsMod)+"'"+" and UTtime = "+str(currUttimeMod)+")"
 
-    
+    print 'retreiving', srchStringMysql
     # connect to the database and access the required data
     con = None
     try:
@@ -498,7 +498,7 @@ def sapsPredModPlots( CurrDstVal, last_good_dst_date, MyMap,Mapfig ) :
 	#plt.clf()
 	#plt.close(Mapfig)
 	
-	print type( annPltMap )
+	
 	annPltMap.remove()
 	#cbar.remove()
 
