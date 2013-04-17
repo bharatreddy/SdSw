@@ -498,7 +498,7 @@ def sapsPredModPlots( CurrDstVal, last_good_dst_date, MyMap,Mapfig ) :
 	#plt.clf()
 	#plt.close(Mapfig)
 	
-	print type( annPltMap )
+	
 	annPltMap.remove()
 	#cbar.remove()
 

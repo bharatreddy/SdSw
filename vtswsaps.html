@@ -1,0 +1,119 @@
+<html><body  bgcolor="Gray" onload="JavaScript:ACERtload();">
+
+
+<script type="text/javascript">
+
+onload = ACERtload();
+
+function ACERtload(){
+	setTimeout("location.reload(true);",60000);
+}
+</script>
+
+
+
+<center>
+<div style="width:750px;height:110px;border:6px groove orange;">
+<font size="4" color="black">
+<b>VT-SuperDARN space weather prediction and alert system.</b>
+<br>
+<i>The Solarwind and Interplanetary magnetic field (taken from Advanced Composition Explorer - ACE satellite) values and Real time Dst index are used to predict the probability of occurrence of Sub Auroral Polarization Stream (SAPS) events in SuperDARN HF radars.</i>
+<br>
+</font>
+</div>
+
+
+
+
+<table>
+
+	<tr>
+		<p style="padding-top:14px;">
+			<h2>Real time solarwind and geomagnetic conditions</h2>
+		</p>
+	</tr>
+
+	<tr>
+		<td>
+			<div class="image">
+				<img src="/images/Gstrm/ACE-PAR-RT.jpeg" alt="Current ACE measurements" width="800" height="600">	
+				<div><b><big>Real time ACE measurements (Updated every 1 min).</big></b></div>
+			</div>
+		<td>
+
+		<td>
+			<div class="image">
+				<img src="/images/Gstrm/Dst-RT.jpeg" alt="Current Dst measurements" width="800" height="600">	
+				<div><b><big>Real time Dst measurements (Updated every 30 min).</big></b></div>
+			</div>
+		<td>
+
+	</tr>
+</table>
+	
+
+
+
+
+
+
+
+<table>
+
+	<tr>
+		<p style="padding-top:14px;">
+			<h2>Predicted occurrence of SAPS in SuperDARN HF radars from Real time Dst index values</h2>
+		</p>
+	</tr>
+
+	<tr>
+		<td>
+			<div class="image">
+				<img src="/images/Gstrm/map_test.png" alt="Current ACE measurements" width="800" height="600">	
+				<div><b><big>Probability of SAPS occurrence according to the current Universal Time (UT) and Dst index.</big></b></div>
+			</div>
+		<td>
+
+		<td>
+			<div class="image">
+				<img src="/images/Gstrm/Mv_Curr_DstModel.gif" alt="Current ACE measurements" width="600" height="400">	
+				<div><b><big>Current SAPS Dst index model in use.</big></b> <br><small>The movie shows the most likely location of SAPS scatter in the midlatitude SuperDARN radars at different UT times for the given Dst index range.</small></div>
+			</div>
+		<td>
+
+	</tr>
+</table>
+
+
+<table>
+
+
+	<tr>
+		<p style="padding-top:14px;">
+			<h2>List of all SAPS Dst index models</h2>
+		</p>
+	</tr>
+
+	<h3><a href="/images/Gstrm/Mv_Summer_Dst1010_ut.gif" target="_blank">Dst index between -10 and 10 nT</a></h3>
+	<h3><a href="/images/Gstrm/Mv_Summer_Dst1025_ut.gif" target="_blank">Dst index between -10 and -25 nT</a></h3>
+	<h3><a href="/images/Gstrm/Mv_Summer_Dst2550_ut.gif" target="_blank">Dst index between -25 and -50 nT</a></h3>
+	<h3><a href="/images/Gstrm/Mv_Summer_Dst5075_ut.gif" target="_blank">Dst index between -50 and -75 nT</a></h3>
+	<h3><a href="/images/Gstrm/Mv_Summer_Dst75_ut.gif" target="_blank">Dst index less than -75 nT</a></h3>
+
+
+	<tr>
+		<p style="padding-top:14px;">
+			<h3><a href="/images/Gstrm/mod-obs-compr.jpeg" target="_blank">Click to see an example of how the model compares with actual observations</a></h3>
+		</p>
+	</tr>
+
+
+
+</table>
+
+
+
+<p>Credits : ACE data is obtained from NOAA SWPC. Dst data is obtained from WDC Kyoto. Python Basemap support in AACGM coordinates is provided by Sebastien de Larquier.</p>
+
+
+</body></html>
