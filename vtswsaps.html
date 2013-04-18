@@ -26,6 +26,19 @@ function ACERtload(){
 </script>
 
 
+ <script type="text/javascript">
+function showRadOptions(id){
+  var s = document.getElementById(id);
+if (s.style.display == "none") {
+  document.getElementById(id).style.display = "block";
+  } else {
+  document.getElementById(id).style.display = "none";
+
+}
+}
+</script>
+
+
 <center>
 <div style="width:750px;height:110px;border:6px groove orange;">
 <font size="4" color="black">
@@ -36,6 +49,21 @@ function ACERtload(){
 </font>
 </div>
 
+<tr>
+<td><input type="checkbox" id="seimage" name="seimage" value="seimage" onClick="showRadOptions('sunErthImgTab')">Show the Sun Earth Image</td>
+
+</tr>
+
+<table  id="sunErthImgTab"  align="center" style="display:none;">
+	<tr>
+		<td>
+			<div class="image">
+				<img src="/images/Gstrm/sun-earth.jpeg" alt="The Sun-Earth Connection (courtesy - NASA)" width="400" height="300">	
+				<div><b><big>The Sun-Earth Connection (courtesy - NASA).</big></b></div>
+			</div>
+		</td>
+	</tr>
+</table>
 
 
 
@@ -53,23 +81,17 @@ function ACERtload(){
 				<img src="/images/Gstrm/ACE-PAR-RT.jpeg" alt="Current ACE measurements" width="800" height="600">	
 				<div><b><big>Real time ACE measurements (Updated every 1 min).</big></b></div>
 			</div>
-		<td>
+		</td>
 
 		<td>
 			<div class="image">
 				<img src="/images/Gstrm/Dst-RT.jpeg" alt="Current Dst measurements" width="800" height="600">	
 				<div><b><big>Real time Dst measurements (Updated every 30 min).</big></b></div>
 			</div>
-		<td>
+		</td>
 
 	</tr>
 </table>
-	
-
-
-
-
-
 
 
 <table>
@@ -86,14 +108,14 @@ function ACERtload(){
 				<img src="/images/Gstrm/map_test.png" alt="Current ACE measurements" width="800" height="600">	
 				<div><b><big>Probability of SAPS occurrence according to the current Universal Time (UT) and Dst index.</big></b></div>
 			</div>
-		<td>
+		</td>
 
 		<td>
 			<div class="image">
 				<img src="/images/Gstrm/Mv_Curr_DstModel.gif" alt="Current ACE measurements" width="600" height="400">	
 				<div><b><big>Current SAPS Dst index model in use.</big></b> <br><small>The movie shows the most likely location of SAPS scatter in the midlatitude SuperDARN radars at different UT times for the given Dst index range.</small></div>
 			</div>
-		<td>
+		</td>
 
 	</tr>
 </table>
