@@ -185,13 +185,25 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
 
     
        
+        # For plotting the time axis (x-axis) we need to get the nearest hour to the last available data...
+        # like do some round of stuff .... also need to mark the time of latest downloaded data
+
+
+        axLabelStartTime = Time_Par[0]
+        checkEndTimeLab = Time_Par[-1] 
         
+        if (checkEndTimeLab.minute < 30) :
+            axLabelEndTime = datetime.datetime(checkEndTimeLab.year,checkEndTimeLab.month,checkEndTimeLab.day, checkEndTimeLab.hour,0,0) + datetime.timedelta( hours = 1 )
+        else :
+            axLabelEndTime = datetime.datetime(checkEndTimeLab.year,checkEndTimeLab.month,checkEndTimeLab.day, checkEndTimeLab.hour,0,0) + datetime.timedelta( hours = 2 )
+        
+
         
         #	set the format of the ticks -- major ticks are set for 0,15,30,45 and 60th mins of the hour
         #	minor ticks are set every 5 min.
         xtickHours = matplotlib.dates.HourLocator()
-        xtickMins_major = matplotlib.dates.MinuteLocator(byminute=range(0,60,15))
-        xtickMins_minor = matplotlib.dates.MinuteLocator(byminute=range(0,60,5))
+        xtickMins_major = matplotlib.dates.MinuteLocator(byminute=range(0,60,30))
+        xtickMins_minor = matplotlib.dates.MinuteLocator(byminute=range(0,60,10))
         
         HMFmt = matplotlib.dates.DateFormatter('%H:%M')
         
@@ -201,8 +213,11 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         
         ax = fig.add_subplot(511)
         ax.plot(time_mag,Bz_mag,label='Bz_GSM',color='r')
-        ax.plot([time_mag[0], time_mag[-1]],[0,0],color='0.75',linestyle='--')
+        ax.plot([axLabelStartTime, axLabelEndTime],[0,0],color='0.75',linestyle='--')
         ax.plot(time_mag,By_mag,label='By_GSM',color='b',linestyle='--')
+
+        # Need to mark the time when the list was last updated
+        ax.plot([time_mag[-1], time_mag[-1]],[-10,10],color='0.75',linestyle='--')
         
         #format the ticks
         ax.xaxis.set_major_formatter(HMFmt)
@@ -211,9 +226,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax.set_xticklabels([])
         
         #	set the labels for the plots
-        plt.ylabel('IMF [nT]', fontsize=4.5)
+        plt.ylabel('IMF [nT]', fontsize=7.5)
         plt.yticks( fontsize=4.5 )
-        plt.axis([Time_Par[0],Time_Par[-1],-10.,10.])
+        plt.axis([axLabelStartTime,axLabelEndTime,-10.,10.])
         plt.title('REAL TIME ACE DATA : '+str(datetime.datetime.date(time_mag[-1])))
         plt.legend(loc=3,prop={'size':5},shadow=True,fancybox=True)
         
@@ -223,6 +238,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax2 = fig.add_subplot(512)
         ax2.plot(time_sw,vt_sw,color='r')
         
+        # Need to mark the time when the list was last updated
+        ax2.plot([time_mag[-1], time_mag[-1]],[200.,700.],color='0.75',linestyle='--')
+
         
         #format the ticks
         ax2.xaxis.set_major_formatter(HMFmt)
@@ -230,9 +248,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax2.xaxis.set_minor_locator(xtickMins_minor)
         ax2.set_xticklabels([])
         
-        plt.ylabel('SW.Vel [km/s]', fontsize=4.5)
+        plt.ylabel('SW.Vel [km/s]', fontsize=7.5)
         plt.yticks( fontsize=4.5 )
-        plt.axis([Time_Par[0],Time_Par[-1],200.,700.])
+        plt.axis([axLabelStartTime,axLabelEndTime,200.,700.])
         
         
         
@@ -241,6 +259,8 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax3 = fig.add_subplot(513)
         ax3.plot(time_sw,np_sw,color='r')
         
+        # Need to mark the time when the list was last updated
+        ax3.plot([time_mag[-1], time_mag[-1]],[0.01,100.],color='0.75',linestyle='--')
         
         #format the ticks
         ax3.xaxis.set_major_formatter(HMFmt)
@@ -250,9 +270,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax3.set_yscale('log')
         
         #	set the labels for the plots
-        plt.ylabel('Np [p/cc]', fontsize=4.5)
+        plt.ylabel('Np [p/cc]', fontsize=7.5)
         plt.yticks( fontsize=4.5 )
-        plt.axis([Time_Par[0],Time_Par[-1],0.,100.])
+        plt.axis([axLabelStartTime,axLabelEndTime,0.,100.])
         
         
         
@@ -260,6 +280,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         
         ax4 = fig.add_subplot(514)
         ax4.plot_date( Time_Par, Boyle_Index, 'r-' )
+
+        # Need to mark the time when the list was last updated
+        ax4.plot([time_mag[-1], time_mag[-1]],[0,200],color='0.75',linestyle='--')
         
         ax4.xaxis.set_major_formatter(HMFmt)
         ax4.xaxis.set_major_locator(xtickMins_major)
@@ -267,13 +290,15 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax4.set_xticklabels([])
         
         #	set the labels for the plots
-        plt.ylabel('Boyle-Index [kV]', fontsize=4.5)
+        plt.ylabel('Boyle-Index [kV]', fontsize=7.5)
         plt.yticks( fontsize=4.5 )
-        plt.axis([Time_Par[0],Time_Par[-1],0.,200.])
+        plt.axis([axLabelStartTime,axLabelEndTime,0.,200.])
         
         ax5 = fig.add_subplot(515)
         ax5.plot_date(Time_Par,Kp_Boyle,'r-')
         
+        # Need to mark the time when the list was last updated
+        ax5.plot([time_mag[-1], time_mag[-1]],[0.,9.],color='0.75',linestyle='--')
         
         #format the ticks
         ax5.xaxis.set_major_formatter(HMFmt)
@@ -281,8 +306,8 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         ax5.xaxis.set_minor_locator(xtickMins_minor)
         ax5.xaxis.set_minor_locator(xtickMins_minor)
         
-        plt.ylabel('Est. Kp', fontsize=4.5)
-        plt.axis([Time_Par[0],Time_Par[-1],0.,9.])
+        plt.ylabel('Est. Kp', fontsize=7.5)
+        plt.axis([axLabelStartTime,axLabelEndTime,0.,9.])
         plt.yticks( [0, 3, 6, 9], fontsize=4.5 )
         plt.xlabel('Time (UT)')
         plt.xticks( rotation = 25 )
