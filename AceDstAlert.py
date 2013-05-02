@@ -47,41 +47,44 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
        print e.args
        check_url_acesw_exist = 'no'   
 
-
-    urllib.urlretrieve(url_acesw,file_acesw)
-    urllib.urlretrieve(url_acemag,file_acemag)
-
-    fff_mag = open(file_acemag)
-    fff_sw = open(file_acesw)
-    liness_mag = fff_mag.readlines()
-    liness_sw = fff_sw.readlines()
-    fff_mag.close()
-    fff_sw.close()
-
-    # Sometimes urlopen (above) doesn't give an error even though
-    # the file is not downloaded thats why before doing any operations 
-    # I'll search for pattern "not found" in the file
-    # The presence of such pattern indicates the file is not downloaded...
-    pattern = "not found" 
-
-    for lmag in liness_mag :
-        cmag = re.search( pattern, lmag )
-        #print lmag
-        if cmag :
-           check_url_acemag_exist = 'no'
-           break
-
-    for lsw in liness_sw :
-        csw = re.search( pattern, lsw )
-        #print lsw
-        if csw :
-           check_url_acesw_exist = 'no'
-           break
-
  
     
-    if (check_url_acemag_exist == 'yes' and check_url_acesw_exist == 'yes' ) :
+    if ( check_url_acemag_exist == 'yes' and check_url_acesw_exist == 'yes' ) :
        
+
+        urllib.urlretrieve(url_acesw,file_acesw)
+        urllib.urlretrieve(url_acemag,file_acemag)
+
+        fff_mag = open(file_acemag)
+        fff_sw = open(file_acesw)
+        liness_mag = fff_mag.readlines()
+        liness_sw = fff_sw.readlines()
+        fff_mag.close()
+        fff_sw.close()
+
+
+        # Sometimes urlopen (above) doesn't give an error even though
+        # the file is not downloaded thats why before doing any operations 
+        # I'll search for pattern "not found" in the file
+        # The presence of such pattern indicates the file is not downloaded...
+        pattern = "not found" 
+
+        for lmag in liness_mag :
+            cmag = re.search( pattern, lmag )
+        #print lmag
+            if cmag :
+                check_url_acemag_exist = 'no'
+                last_mail_sent = 'no'
+                return last_mail_sent, str( old_storm_score )
+
+
+        for lsw in liness_sw :
+            csw = re.search( pattern, lsw )
+            #print lsw
+            if csw :
+               check_url_acesw_exist = 'no'
+               last_mail_sent = 'no'
+               return last_mail_sent, str( old_storm_score )
         
         # open the files...loop through them and read data into arrays
         # start with the swepam files...
@@ -501,8 +504,8 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         return last_mail_sent, str( old_storm_score )
      
     else :
-	last_mail_sent = 'no'
-	return last_mail_sent, str( 0 )
+	   last_mail_sent = 'no'
+	   return last_mail_sent, str( old_storm_score )
     
        
             
@@ -519,7 +522,7 @@ def AceDstAlertCall( attach, text, ace_subject ) :
     
     gmail_user = "vt.sd.sw@gmail.com"
     gmail_pwd = "more ace"
-    gmail_mail_to = [ "bharatr@vt.edu", "mikeruo@vt.edu", "bakerjb@vt.edu",  "kevintyler@vt.edu", "pje@haystack.mit.edu", "phil.erickson@gmail.com", "nafrissell@vt.edu", "steve.kaeppler@gmail.com" ]
+    gmail_mail_to = [ "bharatr@vt.edu" , "mikeruo@vt.edu", "bakerjb@vt.edu",  "kevintyler@vt.edu", "pje@haystack.mit.edu", "phil.erickson@gmail.com", "nafrissell@vt.edu", "steve.kaeppler@gmail.com" ]
 #    ace_subject = "ACE UPDATES"
 #    text = "TESTING ACE UPDATE MECHANISM"
 #    attach = "/home/bharat/Desktop/ACE-PAR-RT.pdf"
