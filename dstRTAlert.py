@@ -148,6 +148,93 @@ def DstRTRd( last_email_time = datetime.datetime.today(), nemails = 0, old_storm
             
             dst_val_50nT_arr = dst_val[ numpy.where( dst_val < -50. ) ]
             date_dst_50nT_arr = date_dst_arr[ numpy.where( dst_val < -50. ) ]
+
+
+            # Now this is the json writing part....
+            # the logic and reason for doing this stuff is explained in AceDstAlert.py
+            # please look into it.....it is basically the same and I'm pretty sure both these files will
+            # be grouped together.
+
+            # to do this we need an hour array
+            dstHourDictArr = []
+            
+            # get only the dates for the latest day 
+            nowDayDateVal = []
+            nowDayDstVal = []
+
+            for dd1,dsdd1 in zip(date_dst_arr,dst_val) :
+
+                if ( (dd1.month == date_dst_arr[ -1 ].month) & (dd1.day == date_dst_arr[ -1 ].day) & (dd1.year == date_dst_arr[ -1 ].year) ) :
+                    nowDayDateVal.append( dd1 )
+                    nowDayDstVal.append(dsdd1)
+
+            nowDayDateVal = numpy.array( nowDayDateVal )
+            nowDayDstVal = numpy.array( nowDayDstVal )
+
+            for dtd2 in nowDayDateVal :
+                dstHourDictArr.append(dtd2.hour) 
+            
+
+            dstHourDictArr = numpy.array(dstHourDictArr)
+            dstHourDictArrUniq = numpy.unique(dstHourDictArr)     
+
+
+            dstDictHourArr = []
+            dateDstDictArr = []
+            stormScoreDstDictArr = []
+
+            for mhhd in dstHourDictArrUniq :
+                dstThishour = nowDayDstVal[ numpy.where( dstHourDictArr == mhhd ) ]
+                dateValthishour = nowDayDateVal[ numpy.where( dstHourDictArr == mhhd ) ]
+                strmdstScoreThishour = 0
+
+                if len(dstThishour) > 0:
+                    dstDictHourArr.append( "%.2f"%min(dstThishour) )
+
+                    if ( ( dstDictHourArr[-1] <= -15. ) & ( dstDictHourArr[-1] > -30. ) ) :
+                        strmdstScoreThishour = 1.
+
+                    if ( ( dstDictHourArr[-1] <= -30. ) & ( dstDictHourArr[-1] > -50. ) ) :
+                        strmdstScoreThishour = 2.
+                    
+                    if ( dstDictHourArr[-1] < -50. ) :
+                        strmdstScoreThishour = 3.
+
+                if len(dateValthishour) > 0 :
+                    dateDstDictArr.append( dateValthishour[0] )
+                else :
+                    dateDstDictArr.append( float('nan') )
+                    print 'something off here!!! in dateDstDictArr'
+
+                stormScoreDstDictArr.append( strmdstScoreThishour )
+
+            dstDictHourArr = numpy.array(dstDictHourArr)
+            dateDstDictArr = numpy.array(dateDstDictArr)
+            stormScoreDstDictArr = numpy.array(stormScoreDstDictArr)
+
+            # Now we have the required array stuff...
+            # write it into a pyton dictionary object
+            dstJsonDict = {}
+
+            for j in range( len(dateDstDictArr) ) : 
+                dateNow = dateDstDictArr[j]
+                strKey = dateNow.strftime('%H%d%m%Y')
+                strDateVal = dateNow.strftime('%d%m%Y')
+
+                dstJsonDict.setdefault(strKey, []).append( strDateVal )
+                dstJsonDict.setdefault(strKey, []).append( dateDstDictArr[j].hour )
+
+                dstJsonDict.setdefault(strKey, []).append( dstDictHourArr[j] )
+                
+
+             # now we have the dictionary obj...so goto the function below
+            # to write this stuff down into a json file
+            # Sometimes may be the dict might not have any values....
+            # dont call the function in that case...
+
+            if len( dstJsonDict.keys() ) > 0 :
+                popRtDstJson(dstJsonDict)
+
             
             
             # Get to the plotting part...
@@ -290,7 +377,7 @@ def DstRTRd( last_email_time = datetime.datetime.today(), nemails = 0, old_storm
             print 'Dst : ', DstVal_latest, 'UT-TIME', last_good_dst_date,'new-score-',Dst_storm_score_level, 'old-score-', old_storm_score       
             
                       
-            del dst_val, date_dst_arr,
+            del dst_val, date_dst_arr, nowDayDateVal, nowDayDstVal, dstDictHourArr, dateDstDictArr, stormScoreDstDictArr, strmdstScoreThishour, dateValthishour, dstThishour, 
             ax.clear()
             
             return last_mail_sent, str( old_storm_score )
@@ -298,6 +385,59 @@ def DstRTRd( last_email_time = datetime.datetime.today(), nemails = 0, old_storm
             last_mail_sent = 'no'
             return last_mail_sent, str( 0 )    
     
+
+
+def popRtDstJson(dstJsonDict):
+    # In the latest addition to spaceweather website we are taking the Dst information for a 24-hour period and storing it 
+    # in a JSON file. This file is later used by Javascript to display the color bar indicating the geomagnetic and solar 
+    # activity levels and they can be made a little interactive as well....like displaying the alert status and dst-index value
+    # for the hour and the ACE activity 
+
+    import os
+    import json
+    import datetime
+
+    # always check if there is any default JSON file in there...
+    # We are using this file as our JSON file
+
+    jsonDstFileName = '/var/www/dstVal.json'
+    
+    # check if the Json file is already there
+    checkDstJsonFile = os.path.isfile( jsonDstFileName )
+    
+    if ( checkDstJsonFile == True ) :
+        # get the values already in the file
+        with open(jsonDstFileName) as infile :
+            oldDataJsonDst = json.load(infile)
+
+
+        # Check if the data is for the current day else delete the data
+        oldKeyVal = oldDataJsonDst.keys()
+        oldKeyVal = oldKeyVal[0]
+
+        newKeyVal = dstJsonDict.keys()
+        newKeyVal = newKeyVal[0]
+
+        if ( dstJsonDict[newKeyVal][0] != oldDataJsonDst[oldKeyVal][0] ) :
+            allDataJsonDst = dstJsonDict
+        else :       
+            # del keys from old dict that are present in new dict
+            # then append new dict to old dict
+            for nke in dstJsonDict.keys() :
+                if nke in oldDataJsonDst : del oldDataJsonDst[nke]
+
+            allDataJsonDst = dict( oldDataJsonDst.items() + dstJsonDict.items() )
+
+
+        # write this stuff in to the json file
+        with open(jsonDstFileName, 'wb') as outfile:
+            json.dump(allDataJsonDst, outfile)
+
+    else :
+        with open(jsonDstFileName, 'wb') as outfile:
+            json.dump(dstJsonDict, outfile)
+
+
     
 def DstAlertCall( attach, text, Dst_subject ) :    
     	

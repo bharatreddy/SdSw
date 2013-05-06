@@ -14,6 +14,7 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
     import matplotlib
     import urllib2
     import re
+    import numpy
 
     # Files to be downloaded and read
 
@@ -158,7 +159,6 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
         
         f_acemag.close()
         
-        
 
         cur_UT_year = strftime("%Y", gmtime())
         cur_UT_mon = strftime("%m", gmtime())
@@ -186,7 +186,133 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
                 Boyle_Index.append( 1e-4* math.pow( vs, 2 ) + 11.7*Bt*math.pow( math.sin(btheta/2), 3 ) ) # This is in kV ...
                 Kp_Boyle.append( 8.93*math.log10( Boyle_Index[-1] ) - 12.55 )
 
-    
+        
+        # Now we need to collect some values as an average over an hour and make them as a dictionary
+        # This is done to create the JSON file which is later used by the javascript to populate the space weather webpage
+        # the values we are storing are - 1) date(as a string), 2) hour, 3) Min Bz, 4) Max Bz, 5) Np, 6) vt
+        
+        # to do this we need an hour array
+        magHourDictArr = []
+        swHourDictArr = []
+
+        # Loop through the time arrays and find the unique hours
+        for dtm2 in time_mag :
+            magHourDictArr.append(dtm2.hour)                
+        for dtsw2 in time_sw :
+            swHourDictArr.append(dtsw2.hour)
+
+        magHourDictArr = numpy.array(magHourDictArr)
+        magHourDictArrUniq = numpy.unique(magHourDictArr)
+
+        swHourDictArr = numpy.array(swHourDictArr)
+        swHourDictArrUniq = numpy.unique(swHourDictArr)
+
+        # Also need a numpy version of the other arrays
+        # first I'll try and convert all these arrays to numpy arrays..
+        # not sure ... it might fail at some places...but lets start it that way..
+        # if it doesn't work create seperate set of numpy arrays...
+        Bz_mag = numpy.array(Bz_mag)
+        vt_sw = numpy.array(vt_sw)
+        np_sw = numpy.array(np_sw)
+        time_mag = numpy.array(time_mag)
+
+        # Now loop through the hour array and make a dict object
+        # Also I'm assuming the both uniq arrays from mag and sw are similar...
+        # I'll just take in the unique values from mag time arr anyways..
+
+        minBzDictHourArr = []
+        maxBzDictHourArr = []
+        vtDictHourArr = []
+        npDictHourArr = []
+        dateDictArr = []
+        stormScoreDictArr = []
+
+        for mhhd in magHourDictArrUniq :
+            bzThishour = Bz_mag[ numpy.where( magHourDictArr == mhhd ) ]
+            vtThishour = vt_sw[ numpy.where( swHourDictArr == mhhd ) ]
+            npThishour = np_sw[ numpy.where( swHourDictArr == mhhd ) ]
+            datethishour = time_mag[ numpy.where( magHourDictArr == mhhd ) ]
+
+            strmScoreThishour = 0
+
+
+            if len(bzThishour) > 0:
+                finiteBzhours = bzThishour[ numpy.where( numpy.isfinite(bzThishour) ) ]
+                minBzDictHourArr.append( "%.2f"%min(finiteBzhours) )
+                maxBzDictHourArr.append( "%.2f"%max(finiteBzhours) )
+
+                if minBzDictHourArr[-1] < -10. :
+                    strmScoreThishour = strmScoreThishour + 1
+
+            else :
+                minBzDictHourArr.append( float('nan') )
+                maxBzDictHourArr.append( float('nan') )
+
+            if len(vtThishour) > 0:
+                finiteVthours = vtThishour[ numpy.where( numpy.isfinite(vtThishour) ) ]
+                vtDictHourArr.append( "%.2f"%max(finiteVthours) )
+
+                if vtDictHourArr[-1] >= 500. :
+                    strmScoreThishour = strmScoreThishour + 1
+
+            else :
+                vtDictHourArr.append( float('nan') )
+
+            if len(npThishour) > 0:
+                finiteNphours = npThishour[ numpy.where( numpy.isfinite(npThishour) ) ]
+                npDictHourArr.append( "%.2f"%max(finiteNphours) )
+
+                if npDictHourArr[-1] >= 10. :
+                    strmScoreThishour = strmScoreThishour + 1                
+
+            else :
+                npDictHourArr.append( float('nan') )
+
+            # note we only take in the first val of this array, which most likely would be the zeroth minute of the hour
+            if len(datethishour) > 0 :
+                dateDictArr.append( datethishour[0] )
+            else :
+                dateDictArr.append( float('nan') )
+                print 'something off here!!! in dateDictArr'
+
+            stormScoreDictArr.append( strmScoreThishour )
+
+
+        minBzDictHourArr = numpy.array(minBzDictHourArr)
+        maxBzDictHourArr = numpy.array(maxBzDictHourArr)
+        vtDictHourArr = numpy.array(vtDictHourArr)
+        npDictHourArr = numpy.array(npDictHourArr)
+        dateDictArr = numpy.array(dateDictArr)
+        stormScoreDictArr = numpy.array(stormScoreDictArr)
+
+        # Now we have the required array stuff...
+        # write it into a pyton dictionary object
+        aceJsonDict = {}
+
+        for j in range( len(dateDictArr) ) : 
+            dateNow = dateDictArr[j]
+            strKey = dateNow.strftime('%H%d%m%Y')
+            strDateVal = dateNow.strftime('%d%m%Y')
+
+            aceJsonDict.setdefault(strKey, []).append( strDateVal )
+            aceJsonDict.setdefault(strKey, []).append( dateDictArr[j].hour )
+
+            aceJsonDict.setdefault(strKey, []).append( minBzDictHourArr[j] )
+            aceJsonDict.setdefault(strKey, []).append( maxBzDictHourArr[j] )
+            aceJsonDict.setdefault(strKey, []).append( vtDictHourArr[j] )
+            aceJsonDict.setdefault(strKey, []).append( npDictHourArr[j] )
+            aceJsonDict.setdefault(strKey, []).append( stormScoreDictArr[j] )
+
+
+        # now we have the dictionary obj...so goto the function below
+        # to write this stuff down into a json file
+        # Sometimes may be the dict might not have any values....
+        # dont call the function in that case...
+
+        if len( aceJsonDict.keys() ) > 0 :
+            popRtAceJson(aceJsonDict)
+        
+
        
         # For plotting the time axis (x-axis) we need to get the nearest hour to the last available data...
         # like do some round of stuff .... also need to mark the time of latest downloaded data
@@ -493,7 +619,10 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
  	
  	print  'Bz-',Bz_mag_latest, 'Np-',np_sw_latest, 'Vsw-',vt_sw_latest, 'new-score-',storm_score_level, 'old-score-', old_storm_score
  	
-        del np_sw, vt_sw, time_sw, Bx_mag, By_mag, Bz_mag, Dst_val, datime_Dst, Ey_IMF_Bz, Boyle_Index, Time_Par, Kp_Boyle, Pdyn, Est_Dst_Val, Est_Dst_Time, 
+        del np_sw, vt_sw, time_sw, Bx_mag, By_mag, Bz_mag, Dst_val, datime_Dst, Ey_IMF_Bz, Boyle_Index, Time_Par, Kp_Boyle, Pdyn, Est_Dst_Val, Est_Dst_Time, \
+            magHourDictArr, magHourDictArrUniq, swHourDictArr, swHourDictArrUniq, bzThishour, minBzDictHourArr,maxBzDictHourArr, vtDictHourArr, vtThishour,\
+            npDictHourArr, npThishour, finiteBzhours, finiteVthours, finiteNphours, dateDictArr, datethishour, stormScoreDictArr, strmScoreThishour,
+
         ax.clear()
         ax2.clear()
         ax3.clear()
@@ -508,7 +637,58 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
 	   return last_mail_sent, str( old_storm_score )
     
        
-            
+
+def popRtAceJson(aceJsonDict) :
+
+# In the latest addition to spaceweather website we are taking the ACE information for a 24-hour period and storing it 
+# in a JSON file. This file is later used by Javascript to display the color bar indicating the geomagnetic and solar 
+# activity levels and they can be made a little interactive as well....like displaying the alert status and dst-index value
+# for the hour and the ACE activity 
+
+    import os
+    import json
+    import datetime
+
+    # always check if there is any default JSON file in there...
+    # We are using this file as our JSON file
+
+    jsonACEFileName = '/var/www/aceVal.json'
+    
+    # check if the Json file is already there
+    checkACEJsonFile = os.path.isfile( jsonACEFileName )
+    
+    if ( checkACEJsonFile == True ) :
+        # get the values already in the file
+        with open(jsonACEFileName) as infile :
+            oldDataJsonAce = json.load(infile)
+
+
+        # Check if the data is for the current day else delete the data
+        oldKeyVal = oldDataJsonAce.keys()
+        oldKeyVal = oldKeyVal[0]
+
+        newKeyVal = aceJsonDict.keys()
+        newKeyVal = newKeyVal[0]
+
+        if ( aceJsonDict[newKeyVal][0] != oldDataJsonAce[oldKeyVal][0] ) :
+            allDataJsonAce = aceJsonDict
+        else :       
+            # del keys from old dict that are present in new dict
+            # then append new dict to old dict
+            for nke in aceJsonDict.keys() :
+                if nke in oldDataJsonAce : del oldDataJsonAce[nke]
+
+            allDataJsonAce = dict( oldDataJsonAce.items() + aceJsonDict.items() )
+
+
+        # write this stuff in to the json file
+        with open(jsonACEFileName, 'wb') as outfile:
+            json.dump(allDataJsonAce, outfile)
+
+    else :
+        with open(jsonACEFileName, 'wb') as outfile:
+            json.dump(aceJsonDict, outfile)
+
             
 
 def AceDstAlertCall( attach, text, ace_subject ) :
