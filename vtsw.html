@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html>
+
+
+<head>
+
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+
+	<style type="text/css">
+		/* HOVER STYLES */
+		div#pop-up {
+		  display: none;
+		  position: absolute;
+		  width: 150px;
+		  padding: 10px;
+		  background: #eeeeee;
+		  color: #000000;
+		  border: 1px solid #1a1a1a;
+		  font-size: 90%;
+		}
+
+		.cellRed{
+		background-color: Red;
+		}
+
+		.cellOrange{
+		background-color: Orange;
+		}
+
+		.cellYellow{
+		background-color: Yellow;
+		}
+
+		.cellGreen{
+		background-color: Green;
+		}
+
+	</style>
+
+</head>
+
+
+<script src="/code/jqry/jquery-1.9.1.min.js"></script>
+
+<script type="text/javascript">
+
+	function getJsonData(idJsonType){
+
+
+		
+
+		if ( idJsonType[2] == 0 ) {
+
+					//var strPopupDiv = 'Alert Status';
+
+					if ( idJsonType.length  == 5) {
+
+						var arrInd = parseInt( idJsonType[idJsonType.length-2]+idJsonType[idJsonType.length-1] );
+
+					} else {
+
+						var arrInd = parseInt( idJsonType[idJsonType.length-1] );
+					}
+
+					//console.log(arrInd)
+
+					var msecTimeStamp = new Date().getTime().toString();
+	
+
+					var aceJsonXHR = new XMLHttpRequest();
+
+					aceJsonXHR.open( "GET", "aceVal.json?"+msecTimeStamp, true );
+
+					aceJsonXHR.onload = function() {
+					  parsedAceJSON = JSON.parse(this.responseText);
+					 
+					  var checkTimeAce = 0;
+					  for (var di in parsedAceJSON){
+					      var nowDatAceJson = parsedAceJSON[di];
+
+
+						  if ( nowDatAceJson[1] == arrInd ){
+
+							var strPopupDiv = 'Bz varied between '+nowDatAceJson[2].toString()+' and'+nowDatAceJson[3].toString() +' nT'+ '<br> '+'Max Vel : '+nowDatAceJson[4].toString()+' km/s'+ '<br> '+'Max Np : '+nowDatAceJson[5].toString()+ ' /cc'+'<br>'+nowDatAceJson[1].toString()+ ' UT';
+
+
+							$(document).ready(function() {
+								$("#pop-up").find("p").html(strPopupDiv)
+
+							});
+
+							checkTimeAce = 1;
+
+							break;
+						}
+
+	  					};
+
+	  				if (checkTimeAce == 0){
+						$(document).ready(function() {
+								$("#pop-up").find("p").html('Alert Status yet to be updated')
+
+							});						
+					}
+	
+
+					};
+
+					aceJsonXHR.send();
+
+			} 
+		else {
+
+					//var strPopupDiv = 'Alert Status';
+
+					if ( idJsonType.length  == 5) {
+
+						var arrInd = parseInt( idJsonType[idJsonType.length-2]+idJsonType[idJsonType.length-1] );
+
+					} else {
+
+						var arrInd = parseInt( idJsonType[idJsonType.length-1] );
+					}
+
+
+					var dstJsonXHR = new XMLHttpRequest();
+
+					dstJsonXHR.open( "GET", "dstVal.json?"+msecTimeStamp, true );
+
+					dstJsonXHR.onload = function() {
+					parsedDstJSON = JSON.parse(this.responseText);
+
+					for (var di in parsedDstJSON){
+						var nowDatDstJson = parsedDstJSON[di];
+						
+						var checkTimeDst = 0;
+
+						if ( nowDatDstJson[1] == arrInd ){
+							
+							strPopupDiv = 'Dst : '+nowDatDstJson[2].toString()+' nT'+ '<br> '+nowDatDstJson[1].toString()+ ' UT';
+							
+							$(document).ready(function() {
+								$("#pop-up").find("p").html(strPopupDiv)
+
+							});
+
+							checkTimeDst = 1;
+
+							break;
+						}
+
+					};
+					
+					if (checkTimeDst == 0){
+						$(document).ready(function() {
+								$("#pop-up").find("p").html('Alert Status yet to be updated')
+
+							});						
+					}
+
+
+					};
+
+					dstJsonXHR.send();
+
+		}
+
+		
+		return "td"+idJsonType;
+
+	}
+
+</script>
+
+<script type="text/javascript">
+
+//onload = ACERtload();
+
+function ACERtload(){
+
+	setTimeout("location.reload(true);",60000);
+
+	// Ajax stuff for getting the ACE json
+
+	// Some times the json is read from cache...to avoid it we use timestamp after a question mark
+	// this dupes it into thinking it as a new file and makes it read from browser every time..
+	var msecTimeStamp = new Date().getTime().toString();
+	
+
+	var aceJsonXHR = new XMLHttpRequest();
+
+	aceJsonXHR.open( "GET", "aceVal.json?"+msecTimeStamp, true );
+
+	aceJsonXHR.onload = function() {
+	  parsedAceJSON = JSON.parse(this.responseText);
+	 
+	  // Count the number of keys in each JSON file for later use
+	  var countAceJson = 0;
+	  for (k2 in parsedAceJSON) if (parsedAceJSON.hasOwnProperty(k2)) countAceJson++;
+
+	  // Declare arrays and populate them with the Json Values for later use.
+	  var hourValAceArr = new Array(countAceJson);
+      var minBzAceArr = new Array(countAceJson);
+	  var maxBzAceArr = new Array(countAceJson);
+	  var vtAceArr = new Array(countAceJson);	
+	  var npAceArr = new Array(countAceJson);
+	  var stormScoreDstArr = new Array(countAceJson);
+
+	  cntAce = 0
+	  for (var di in parsedAceJSON){
+	      var nowDatAceJson = parsedAceJSON[di];
+		  //alert(countAceJson);
+		  hourValAceArr[cntAce] = nowDatAceJson[1]		
+		  minBzAceArr[cntAce] = nowDatAceJson[2]
+		  maxBzAceArr[cntAce] = nowDatAceJson[3]		
+		  vtAceArr[cntAce] = nowDatAceJson[4]
+		  npAceArr[cntAce] = nowDatAceJson[5]
+		  stormScoreDstArr[cntAce] = nowDatAceJson[6]
+
+		  $(document).ready(function() {
+
+			var tdIdVal = "#td0"+nowDatAceJson[1].toString();
+			
+			if ( nowDatAceJson[6] == 3 ) {
+				$(tdIdVal).addClass('cellRed')
+			}
+			else if ( nowDatAceJson[6] == 2 ) {
+				$(tdIdVal).addClass('cellOrange')
+			}
+			else if ( nowDatAceJson[6] == 1 ) {
+				$(tdIdVal).addClass('cellYellow')
+			}
+			else {
+				$(tdIdVal).addClass('cellGreen')
+			}
+		  });
+
+
+		  cntAce = cntAce + 1
+	  };
+	
+
+	};
+
+	aceJsonXHR.send();
+
+	// Ajax stuff for getting the Dst json
+
+	var dstJsonXHR = new XMLHttpRequest();
+
+	dstJsonXHR.open( "GET", "dstVal.json?"+msecTimeStamp, true );
+
+	dstJsonXHR.onload = function() {
+	parsedDstJSON = JSON.parse(this.responseText);
+	
+
+	
+	// Count the number of keys in each JSON file for later use
+	var countDstJson = 0;
+	for (k1 in parsedDstJSON) if (parsedDstJSON.hasOwnProperty(k1)) countDstJson++;
+
+
+	// Declare arrays and populate them with the Json Values for later use.
+	var hourValDstArr = new Array(countDstJson);
+	var dstValDstArr = new Array(countDstJson);
+	var stormScoreDstArr = new Array(countDstJson);
+
+
+	cntDst= 0
+	for (var di in parsedDstJSON){
+		var nowDatDstJson = parsedDstJSON[di];
+		//alert(countAceJson);
+		hourValDstArr[cntDst] = nowDatDstJson[1]		
+		dstValDstArr[cntDst] = nowDatDstJson[2]
+		stormScoreDstArr[cntDst] = nowDatDstJson[3]
+
+		$(document).ready(function() {
+
+			var tdIdVal = "#td1"+nowDatDstJson[1].toString();
+			//console.log(nowDatDstJson[3])
+			if ( nowDatDstJson[3] == 3 ) {
+				$(tdIdVal).addClass('cellRed')
+			}																																
+			else if ( nowDatDstJson[3] == 2 ) {
+				$(tdIdVal).addClass('cellOrange')
+			}
+			else if ( nowDatDstJson[3] == 1 ) {
+				$(tdIdVal).addClass('cellYellow')
+			}
+			else {
+				$(tdIdVal).addClass('cellGreen')
+			}
+		});
+
+		cntDst = cntDst + 1
+	};
+	
+	};
+
+	dstJsonXHR.send();
+
+
+	
+
+
+};
+
+</script>
+
+
+
+<script>
+
+	$(document).ready(function() {
+
+
+		var moveLeft = 20;
+  		var moveDown = 10;
+
+  		//console.log(minBzAceArr[0])
+
+		$('#nowForeTab tbody td').hover(function (e) {
+        	  var textIdVal = $(this).attr('id');
+
+        	  var retTextAppnd = getJsonData(textIdVal);
+
+        	  //console.log(retTextAppnd)
+
+              $(this).css('borderWidth','3px');
+              $('div#pop-up').fadeIn()
+                .css('top', e.pageY + moveDown)
+      			.css('left', e.pageX + moveLeft)
+      			.appendTo('body');
+
+        }, function () {
+              $(this).css('borderWidth','1px');
+              $('div#pop-up').fadeOut();
+       
+        });
+
+
+        $('#nowForeTab tbody td').mousemove(function(e) {
+    		$("div#pop-up").css('top', e.pageY + moveDown).css('left', e.pageX + moveLeft);
+  		});
+
+	});
+
+</script>
+
+<body bgcolor="Gray" onload="JavaScript:ACERtload();">
+
+<!-- HIDDEN / POP-UP DIV -->
+<div id="pop-up">
+  <p>
+    Alert Status yet to be updated
+  </p>
+</div>
+
+<table style="border:1px solid black; empty-cells:show; border-collapse:separate; " id = "nowForeTab" align="center">
+
+<tr>
+	<th style="border:1px solid black;">Forecast</th>
+	<td style="border:1px solid black;" id = "td00" width="20"></td>
+	<td style="border:1px solid black;" id = "td01" width="20"></td>
+	<td style="border:1px solid black;" id = "td02" width="20"></td>
+	<td style="border:1px solid black;" id = "td03" width="20"></td>
+	<td style="border:1px solid black;" id = "td04" width="20"></td>
+	<td style="border:1px solid black;" id = "td05" width="20"></td>
+	<td style="border:1px solid black;" id = "td06" width="20"></td>
+	<td style="border:1px solid black;" id = "td07" width="20"></td>
+	<td style="border:1px solid black;" id = "td08" width="20"></td>
+	<td style="border:1px solid black;" id = "td09" width="20"></td>
+	<td style="border:1px solid black;" id = "td010" width="20"></td>
+	<td style="border:1px solid black;" id = "td011" width="20"></td>
+	<td style="border:1px solid black;" id = "td012" width="20"></td>
+	<td style="border:1px solid black;" id = "td013" width="20"></td>
+	<td style="border:1px solid black;" id = "td014" width="20"></td>
+	<td style="border:1px solid black;" id = "td015" width="20"></td>
+	<td style="border:1px solid black;" id = "td016" width="20"></td>
+	<td style="border:1px solid black;" id = "td017" width="20"></td>
+	<td style="border:1px solid black;" id = "td018" width="20"></td>
+	<td style="border:1px solid black;" id = "td019" width="20"></td>
+	<td style="border:1px solid black;" id = "td020" width="20"></td>
+	<td style="border:1px solid black;" id = "td021" width="20"></td>
+	<td style="border:1px solid black;" id = "td022" width="20"></td>
+	<td style="border:1px solid black;" id = "td023" width="20"></td>
+
+</tr>
+
+<tr>
+	<th style="border:1px solid black;">Nowcast</th>
+	<td style="border:1px solid black;" id = "td10" width="20"></td>
+	<td style="border:1px solid black;" id = "td11" width="20"></td>
+	<td style="border:1px solid black;" id = "td12" width="20"></td>
+	<td style="border:1px solid black;" id = "td13" width="20"></td>
+	<td style="border:1px solid black;" id = "td14" width="20"></td>
+	<td style="border:1px solid black;" id = "td15" width="20"></td>
+	<td style="border:1px solid black;" id = "td16" width="20"></td>
+	<td style="border:1px solid black;" id = "td17" width="20"></td>
+	<td style="border:1px solid black;" id = "td18" width="20"></td>
+	<td style="border:1px solid black;" id = "td19" width="20"></td>
+	<td style="border:1px solid black;" id = "td110" width="20"></td>
+	<td style="border:1px solid black;" id = "td111" width="20"></td>
+	<td style="border:1px solid black;" id = "td112" width="20"></td>
+	<td style="border:1px solid black;" id = "td113" width="20"></td>
+	<td style="border:1px solid black;" id = "td114" width="20"></td>
+	<td style="border:1px solid black;" id = "td115" width="20"></td>
+	<td style="border:1px solid black;" id = "td116" width="20"></td>
+	<td style="border:1px solid black;" id = "td117" width="20"></td>
+	<td style="border:1px solid black;" id = "td118" width="20"></td>
+	<td style="border:1px solid black;" id = "td119" width="20"></td>
+	<td style="border:1px solid black;" id = "td120" width="20"></td>
+	<td style="border:1px solid black;" id = "td121" width="20"></td>
+	<td style="border:1px solid black;" id = "td122" width="20"></td>
+	<td style="border:1px solid black;" id = "td123" width="20"></td>
+
+</tr>
+
+</table>
+
+<div id="VtSdACERtplot">
+
+	<table>
+		<tr>
+			<td>
+				
+				<img src="/images/Gstrm/ACE-PAR-RT.jpeg" alt="Current ACE measurements" width="800" height="600">	
+
+			<td>
+		</tr>
+	</table>
+
+</div>
+
+
+
+<div id="VtSdDstRtplot">
+
+	<table>
+		<tr>
+			<td>
+				
+				<img src="/images/Gstrm/Dst-RT.jpeg" alt="Current ACE measurements" width="800" height="600">	
+
+			<td>
+		</tr>
+	</table>
+
+</div>
+
+
+
+<p>Credits : ACE data is obtained from NOAA SWPC. Dst data is obtained from WDC Kyoto</p>
+
+</body></html>
