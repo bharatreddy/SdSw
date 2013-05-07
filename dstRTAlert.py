@@ -225,6 +225,7 @@ def DstRTRd( last_email_time = datetime.datetime.today(), nemails = 0, old_storm
                 dstJsonDict.setdefault(strKey, []).append( dateDstDictArr[j].hour )
 
                 dstJsonDict.setdefault(strKey, []).append( dstDictHourArr[j] )
+		dstJsonDict.setdefault(strKey, []).append( stormScoreDstDictArr[j] )
                 
 
              # now we have the dictionary obj...so goto the function below

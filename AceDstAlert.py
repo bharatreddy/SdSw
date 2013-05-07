@@ -238,11 +238,17 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
 
             if len(bzThishour) > 0:
                 finiteBzhours = bzThishour[ numpy.where( numpy.isfinite(bzThishour) ) ]
-                minBzDictHourArr.append( "%.2f"%min(finiteBzhours) )
-                maxBzDictHourArr.append( "%.2f"%max(finiteBzhours) )
 
-                if minBzDictHourArr[-1] < -10. :
-                    strmScoreThishour = strmScoreThishour + 1
+                if len(finiteBzhours) > 0 :
+                    minBzDictHourArr.append( "%.2f"%min(finiteBzhours) )
+                    maxBzDictHourArr.append( "%.2f"%max(finiteBzhours) )
+                    
+                    if minBzDictHourArr[-1] < -10. :
+                        strmScoreThishour = strmScoreThishour + 1
+
+                else :
+                    minBzDictHourArr.append( float('nan') )
+                    maxBzDictHourArr.append( float('nan') )
 
             else :
                 minBzDictHourArr.append( float('nan') )
@@ -250,20 +256,27 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
 
             if len(vtThishour) > 0:
                 finiteVthours = vtThishour[ numpy.where( numpy.isfinite(vtThishour) ) ]
-                vtDictHourArr.append( "%.2f"%max(finiteVthours) )
+                if len(finiteVthours) > 0 :
+                    vtDictHourArr.append( "%.2f"%max(finiteVthours) )
+                    if vtDictHourArr[-1] >= 500. :
+                        strmScoreThishour = strmScoreThishour + 1
 
-                if vtDictHourArr[-1] >= 500. :
-                    strmScoreThishour = strmScoreThishour + 1
+                else :
+                    vtDictHourArr.append( float('nan') )
 
             else :
                 vtDictHourArr.append( float('nan') )
 
             if len(npThishour) > 0:
                 finiteNphours = npThishour[ numpy.where( numpy.isfinite(npThishour) ) ]
-                npDictHourArr.append( "%.2f"%max(finiteNphours) )
+                if len(finiteNphours) > 0 :
+                    npDictHourArr.append( "%.2f"%max(finiteNphours) )
+                    
+                    if npDictHourArr[-1] >= 10. :
+                        strmScoreThishour = strmScoreThishour + 1                
 
-                if npDictHourArr[-1] >= 10. :
-                    strmScoreThishour = strmScoreThishour + 1                
+                else :
+                    npDictHourArr.append( float('nan') )
 
             else :
                 npDictHourArr.append( float('nan') )
