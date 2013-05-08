@@ -243,8 +243,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
                     minBzDictHourArr.append( "%.2f"%min(finiteBzhours) )
                     maxBzDictHourArr.append( "%.2f"%max(finiteBzhours) )
                     
-                    if minBzDictHourArr[-1] < -10. :
+                    if float(minBzDictHourArr[-1]) < -10. :
                         strmScoreThishour = strmScoreThishour + 1
+                        
 
                 else :
                     minBzDictHourArr.append( float('nan') )
@@ -258,8 +259,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
                 finiteVthours = vtThishour[ numpy.where( numpy.isfinite(vtThishour) ) ]
                 if len(finiteVthours) > 0 :
                     vtDictHourArr.append( "%.2f"%max(finiteVthours) )
-                    if vtDictHourArr[-1] >= 500. :
+                    if float(vtDictHourArr[-1]) >= 500. :
                         strmScoreThishour = strmScoreThishour + 1
+                        
 
                 else :
                     vtDictHourArr.append( float('nan') )
@@ -272,8 +274,9 @@ def AceDstRd( last_email_time = datetime.datetime.today(), nemails = 0, old_stor
                 if len(finiteNphours) > 0 :
                     npDictHourArr.append( "%.2f"%max(finiteNphours) )
                     
-                    if npDictHourArr[-1] >= 10. :
-                        strmScoreThishour = strmScoreThishour + 1                
+                    if float(npDictHourArr[-1]) >= 10. :
+                        strmScoreThishour = strmScoreThishour + 1   
+                       
 
                 else :
                     npDictHourArr.append( float('nan') )
@@ -683,7 +686,10 @@ def popRtAceJson(aceJsonDict) :
         newKeyVal = aceJsonDict.keys()
         newKeyVal = newKeyVal[0]
 
+        # If we are in a different day,
+        # Lets keep a copy of that file for later analysis
         if ( aceJsonDict[newKeyVal][0] != oldDataJsonAce[oldKeyVal][0] ) :
+            os.system( "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json" )
             allDataJsonAce = aceJsonDict
         else :       
             # del keys from old dict that are present in new dict

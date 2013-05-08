@@ -191,13 +191,13 @@ def DstRTRd( last_email_time = datetime.datetime.today(), nemails = 0, old_storm
                 if len(dstThishour) > 0:
                     dstDictHourArr.append( "%.2f"%min(dstThishour) )
 
-                    if ( ( dstDictHourArr[-1] <= -15. ) & ( dstDictHourArr[-1] > -30. ) ) :
+                    if ( ( float(dstDictHourArr[-1]) <= -15. ) & ( float(dstDictHourArr[-1]) > -30. ) ) :
                         strmdstScoreThishour = 1.
 
-                    if ( ( dstDictHourArr[-1] <= -30. ) & ( dstDictHourArr[-1] > -50. ) ) :
+                    if ( ( float(dstDictHourArr[-1]) <= -30. ) & ( float(dstDictHourArr[-1]) > -50. ) ) :
                         strmdstScoreThishour = 2.
                     
-                    if ( dstDictHourArr[-1] < -50. ) :
+                    if ( float(dstDictHourArr[-1]) < -50. ) :
                         strmdstScoreThishour = 3.
 
                 if len(dateValthishour) > 0 :
@@ -420,6 +420,7 @@ def popRtDstJson(dstJsonDict):
         newKeyVal = newKeyVal[0]
 
         if ( dstJsonDict[newKeyVal][0] != oldDataJsonDst[oldKeyVal][0] ) :
+            os.system( "cp "+jsonDstFileName+" /var/www/oldJsons/dst_"+str(oldDataJsonDst[oldKeyVal][0])+".json" )
             allDataJsonDst = dstJsonDict
         else :       
             # del keys from old dict that are present in new dict
