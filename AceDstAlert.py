@@ -681,7 +681,7 @@ def popRtAceJson(aceJsonDict) :
 
         # Check if the data is for the current day else delete the data
         oldKeyVal = oldDataJsonAce.keys()
-        oldKeyVal = oldKeyVal[0]
+        oldKeyVal = oldKeyVal[-1]
 
         newKeyVal = aceJsonDict.keys()
         newKeyVal = newKeyVal[0]
@@ -689,13 +689,51 @@ def popRtAceJson(aceJsonDict) :
         # If we are in a different day,
         # Lets keep a copy of that file for later analysis
         if ( aceJsonDict[newKeyVal][0] != oldDataJsonAce[oldKeyVal][0] ) :
-            os.system( "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json" )
+
+            ystrdyFileNameJson = " /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json"
+
+            checkYstrdyJsonFile = os.path.isfile( ystrdyFileNameJson )
+
+            if ( checkYstrdyJsonFile == False ) :
+                os.system( "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json" )
+
+            
+            print oldDataJsonAce
+            print 'newJson'
+            print aceJsonDict
+            print 'newkey-oldkey'
+            print oldKeyVal, newKeyVal
+
+            # There is one last thing!, like if we are looking at say 1 UT of a particular day, then
+            # 22 and 23 UT's from the previous day are also present in the dict, so we need to remove the previous days data
+            # this change done on May 15, 2013--So discard all the JSONs before this date. Again a lot of this is done keeping in mind
+            # website stuff... 
+
+
+            # first get a list of all the dateStrings and dates in the dict
+            newJsonstrDateArr = []
+            newJsonDateObjArr = []
+
+            for dke1 in aceJsonDict.keys() :
+                newJsonstrDateArr.append( aceJsonDict[dke1][0] )
+                newJsonDateObjArr.append( datetime.datetime.strptime( newJsonstrDateArr[-1], "%d%m%Y" ) )
+
+
+            latestDateNewJson = max( newJsonDateObjArr ) # this is the latest date...
+            # Now loop again through the new Dict to delete keys which are from old dates
+            for d2ke in aceJsonDict.keys() :
+                loopCurrDateStr = aceJsonDict[d2ke][0]
+                loopCurrdateObj = datetime.datetime.strptime( loopCurrDateStr, "%d%m%Y" )
+
+                if ( latestDateNewJson > loopCurrdateObj ) :
+                    del aceJsonDict[d2ke]
+
             allDataJsonAce = aceJsonDict
         else :       
             # del keys from old dict that are present in new dict
             # then append new dict to old dict
-            for nke in aceJsonDict.keys() :
-                if nke in oldDataJsonAce : del oldDataJsonAce[nke]
+            for nke in oldDataJsonAce.keys() :
+                if nke in aceJsonDict : del oldDataJsonAce[nke]
 
             allDataJsonAce = dict( oldDataJsonAce.items() + aceJsonDict.items() )
 
@@ -703,6 +741,8 @@ def popRtAceJson(aceJsonDict) :
         # write this stuff in to the json file
         with open(jsonACEFileName, 'wb') as outfile:
             json.dump(allDataJsonAce, outfile)
+
+        
 
     else :
         with open(jsonACEFileName, 'wb') as outfile:
