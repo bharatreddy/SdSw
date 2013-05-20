@@ -692,11 +692,16 @@ def popRtAceJson(aceJsonDict) :
 
             ystrdyFileNameJson = " /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json"
 
-            checkYstrdyJsonFile = os.path.isfile( ystrdyFileNameJson )
+            checkYstrdyJsonFile = os.path.exists( ystrdyFileNameJson )
 
-            if ( checkYstrdyJsonFile == False ) :
+            print 'ystrdyFileNameJson-checkYstrdyJsonFile', ystrdyFileNameJson, checkYstrdyJsonFile
+
+            # We need to copy the old Json info only once! other wise it gets contaminated with next days results
+            if not ( checkYstrdyJsonFile ) :
                 os.system( "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json" )
-
+                checkYstrdyJsonFile22 = os.path.exists( ystrdyFileNameJson )
+                print 'check y transfer', checkYstrdyJsonFile22
+                print 'fname ', "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json"
             
             print oldDataJsonAce
             print 'newJson'
