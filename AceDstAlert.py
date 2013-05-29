@@ -700,14 +700,10 @@ def popRtAceJson(aceJsonDict) :
             if not ( checkYstrdyJsonFile ) :
                 os.system( "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json" )
                 checkYstrdyJsonFile22 = os.path.exists( ystrdyFileNameJson )
-                print 'check y transfer', checkYstrdyJsonFile22
-                print 'fname ', "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json"
             
-            print oldDataJsonAce
-            print 'newJson'
-            print aceJsonDict
-            print 'newkey-oldkey'
-            print oldKeyVal, newKeyVal
+                print 'currently.. ', "cp "+jsonACEFileName+" /var/www/oldJsons/ace_"+str(oldDataJsonAce[oldKeyVal][0])+".json"
+            
+            
 
             # There is one last thing!, like if we are looking at say 1 UT of a particular day, then
             # 22 and 23 UT's from the previous day are also present in the dict, so we need to remove the previous days data
