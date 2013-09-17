@@ -452,7 +452,7 @@ def DstAlertCall( attach, text, Dst_subject ) :
     
     gmail_user = "vt.sd.sw@gmail.com"
     gmail_pwd = "more ace"
-    gmail_mail_to = [ "bharatr@vt.edu", "mikeruo@vt.edu", "bakerjb@vt.edu",  "kevintyler@vt.edu" , "pje@haystack.mit.edu", "phil.erickson@gmail.com", "nafrissell@vt.edu", "steve.kaeppler@gmail.com" ]
+    gmail_mail_to = [ "bharatr@vt.edu", "mikeruo@vt.edu", "bakerjb@vt.edu",  "kevintyler@vt.edu" , "pje@haystack.mit.edu", "phil.erickson@gmail.com", "nafrissell@vt.edu", "steve.kaeppler@gmail.com", "pratik91@vt.edu" ]
 
     
     msg = MIMEMultipart()
